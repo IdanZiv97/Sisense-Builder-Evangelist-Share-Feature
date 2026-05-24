@@ -20,7 +20,7 @@ export default function ShareModal({ imageDataUrl, defaultCaption, onClose }: Pr
     setSlackState("loading");
     setSlackError("");
     try {
-      await shareToSlack(caption);
+      await shareToSlack(caption, imageDataUrl);
       setSlackState("done");
     } catch (e) {
       setSlackState("error");
