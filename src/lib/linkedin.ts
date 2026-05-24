@@ -1,17 +1,25 @@
 const REPO_URL = "https://github.com/your-handle/sisense-internal-bi-tool";
-const MAX_SUMMARY_LENGTH = 700;
 
-export function openLinkedInShare(caption: string): void {
-  const summary =
-    caption.length > MAX_SUMMARY_LENGTH
-      ? caption.slice(0, MAX_SUMMARY_LENGTH - 3) + "..."
-      : caption;
+/**
+ * Copy caption to clipboard then open LinkedIn's share dialog.
+ * LinkedIn no longer accepts pre-filled text via URL params —
+ * copying to clipboard lets the user paste it directly into the post.
+ * Returns true if clipboard write succeeded.
+ */
+export async function openLinkedInShare(caption: string): Promise<boolean> {
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(caption);
+    copied = true;
+  } catch {
+    // Clipboard API blocked (e.g. non-https) — user copies manually
+  }
 
   const url = new URL("https://www.linkedin.com/sharing/share-offsite/");
   url.searchParams.set("url", REPO_URL);
-  url.searchParams.set("title", "SaaS Analytics Insight · Built with Sisense");
-  url.searchParams.set("summary", summary);
   window.open(url.toString(), "_blank", "noopener,noreferrer");
+
+  return copied;
 }
 
 export function downloadPng(dataUrl: string, filename = "insight.png"): void {

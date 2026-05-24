@@ -15,6 +15,7 @@ export default function ShareModal({ imageDataUrl, defaultCaption, onClose }: Pr
   const [caption, setCaption] = useState(defaultCaption);
   const [slackState, setSlackState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [slackError, setSlackError] = useState("");
+  const [linkedInShared, setLinkedInShared] = useState(false);
 
   async function handleSlack() {
     setSlackState("loading");
@@ -28,9 +29,10 @@ export default function ShareModal({ imageDataUrl, defaultCaption, onClose }: Pr
     }
   }
 
-  function handleLinkedIn() {
+  async function handleLinkedIn() {
     downloadPng(imageDataUrl, "sisense-insight.png");
-    openLinkedInShare(caption);
+    await openLinkedInShare(caption);
+    setLinkedInShared(true);
   }
 
   return (
@@ -111,9 +113,15 @@ export default function ShareModal({ imageDataUrl, defaultCaption, onClose }: Pr
         )}
 
         {/* LinkedIn hint */}
-        <p className="mt-3 text-[11px] text-slate-400">
-          LinkedIn: your chart image will download automatically — attach it to your post.
-        </p>
+        {linkedInShared ? (
+          <p className="mt-3 text-[11px] text-emerald-600 font-medium">
+            ✓ Caption copied to clipboard · image downloaded — paste the text and attach the image in LinkedIn.
+          </p>
+        ) : (
+          <p className="mt-3 text-[11px] text-slate-400">
+            LinkedIn: caption will be copied to clipboard, image downloads automatically.
+          </p>
+        )}
       </div>
     </div>
   );
