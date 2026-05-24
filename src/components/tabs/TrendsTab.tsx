@@ -17,11 +17,15 @@ export default function TrendsTab() {
         <p className="text-sm text-slate-400">Time-series analysis with trend lines</p>
       </div>
 
-      {/* MRR trend */}
       <ChartCard
         title="MRR Trend"
         subtitle="Revenue growth with linear trend overlay"
         shareCaption="MRR trend analysis — 24 months of SaaS revenue growth. Powered by Sisense."
+        insights={{
+          dataSource: DataSource,
+          dimensions: [DM.Date.Months],
+          measures: [totalMrr],
+        }}
       >
         <div style={{ height: 300 }}>
           <Chart
@@ -32,18 +36,20 @@ export default function TrendsTab() {
               value: [totalMrr],
               breakBy: [],
             }}
-            styleOptions={{
-              legend: { enabled: false },
-            }}
+            styleOptions={{ legend: { enabled: false } }}
           />
         </div>
       </ChartCard>
 
-      {/* Active customers over time */}
       <ChartCard
         title="Customer Growth"
         subtitle="Total active customers per month"
         shareCaption="Customer growth over 24 months — tracking the compound effect of low churn."
+        insights={{
+          dataSource: DataSource,
+          dimensions: [DM.Date.Months],
+          measures: [activeCount],
+        }}
       >
         <div style={{ height: 280 }}>
           <Chart
@@ -59,11 +65,15 @@ export default function TrendsTab() {
         </div>
       </ChartCard>
 
-      {/* NPS trend */}
       <ChartCard
         title="NPS Score Trend"
         subtitle="Customer satisfaction over time (1–10)"
         shareCaption="Our NPS score trend — customer happiness is the real leading indicator."
+        insights={{
+          dataSource: DataSource,
+          dimensions: [DM.Date.Months],
+          measures: [avgNps],
+        }}
       >
         <div style={{ height: 260 }}>
           <Chart

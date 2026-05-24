@@ -9,7 +9,6 @@ import ChartCard from "../ChartCard";
 
 export default function DashboardTab() {
   const activeMrr = measureFactory.sum(DM.Mrr, "Total MRR ($)");
-  const activeCustomers = measureFactory.sum(DM.IsActive, "Active Customers");
   const newCustomers = measureFactory.sum(DM.IsNew, "New Customers");
   const churnedCustomers = measureFactory.sum(DM.IsChurned, "Churned");
 
@@ -57,6 +56,11 @@ export default function DashboardTab() {
         title="MRR Over Time"
         subtitle="Monthly recurring revenue Jan 2023 – Dec 2024"
         shareCaption="Our MRR trend over the past 24 months — built with Sisense Compose SDK + Claude. The sharing feature didn't exist in the SDK. I built it in 90 lines. 🚀"
+        insights={{
+          dataSource: DataSource,
+          dimensions: [DM.Date.Months],
+          measures: [activeMrr],
+        }}
       >
         <div style={{ height: 300 }}>
           <Chart
@@ -78,6 +82,11 @@ export default function DashboardTab() {
           title="New Customers per Month"
           subtitle="Net new signups over time"
           shareCaption="New customer acquisitions — 24 months of SaaS growth data"
+          insights={{
+            dataSource: DataSource,
+            dimensions: [DM.Date.Months],
+            measures: [newCustomers],
+          }}
         >
           <div style={{ height: 240 }}>
             <Chart
@@ -97,6 +106,11 @@ export default function DashboardTab() {
           title="Churned Customers per Month"
           subtitle="Customer cancellations over time"
           shareCaption="Monthly churn — key metric for any SaaS business"
+          insights={{
+            dataSource: DataSource,
+            dimensions: [DM.Date.Months],
+            measures: [churnedCustomers],
+          }}
         >
           <div style={{ height: 240 }}>
             <Chart
