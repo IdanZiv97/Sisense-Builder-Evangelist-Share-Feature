@@ -24,6 +24,7 @@ interface Props {
 
 export default function ChartCard({ title, subtitle, children, shareCaption, insights }: Props) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const insightsPanelRef = useRef<HTMLDivElement>(null);
   const [showInsights, setShowInsights] = useState(false);
 
   return (
@@ -52,6 +53,7 @@ export default function ChartCard({ title, subtitle, children, shareCaption, ins
           <ShareButton
             targetRef={contentRef}
             defaultCaption={shareCaption ?? `${title} — powered by Sisense`}
+            insightsPanelRef={insightsPanelRef}
           />
         </div>
       </div>
@@ -61,7 +63,7 @@ export default function ChartCard({ title, subtitle, children, shareCaption, ins
 
       {/* NLG Insights panel — only rendered when toggled on */}
       {insights && showInsights && (
-        <div className="mt-4 border-t border-slate-100 pt-4">
+        <div ref={insightsPanelRef} className="mt-4 border-t border-slate-100 pt-4">
           <GetNlgInsights
             dataSource={insights.dataSource}
             dimensions={insights.dimensions}

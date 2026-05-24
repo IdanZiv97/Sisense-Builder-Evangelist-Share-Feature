@@ -8,16 +8,23 @@ import ShareModal from "./ShareModal";
 interface Props {
   targetRef: React.RefObject<HTMLDivElement | null>;
   defaultCaption: string;
+  /** When provided, its textContent is used as the caption if non-empty (NLG insight text). */
+  insightsPanelRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export default function ShareButton({ targetRef, defaultCaption }: Props) {
+export default function ShareButton({ targetRef, defaultCaption, insightsPanelRef }: Props) {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);
+  const [resolvedCaption, setResolvedCaption] = useState(defaultCaption);
 
   async function handleClick() {
     if (!targetRef.current) return;
     setCapturing(true);
     try {
+      // Grab NLG insight text at share time if the panel is mounted and has content
+      const insightText = insightsPanelRef?.current?.textContent?.trim();
+      setResolvedCaption(insightText || defaultCaption);
+
       const dataUrl = await toPng(targetRef.current, {
         pixelRatio: 2,
         skipFonts: false,
@@ -44,7 +51,7 @@ export default function ShareButton({ targetRef, defaultCaption }: Props) {
       {imageDataUrl && (
         <ShareModal
           imageDataUrl={imageDataUrl}
-          defaultCaption={defaultCaption}
+          defaultCaption={resolvedCaption}
           onClose={() => setImageDataUrl(null)}
         />
       )}

@@ -5,6 +5,7 @@ import { X, Loader2 } from "lucide-react";
 import { shareToSlack } from "@/lib/slack";
 import { openLinkedInShare, downloadPng } from "@/lib/linkedin";
 
+
 interface Props {
   imageDataUrl: string;
   defaultCaption: string;
@@ -21,6 +22,8 @@ export default function ShareModal({ imageDataUrl, defaultCaption, onClose }: Pr
     setSlackState("loading");
     setSlackError("");
     try {
+      // Download the chart image locally (same as LinkedIn)
+      downloadPng(imageDataUrl, "sisense-insight.png");
       await shareToSlack(caption);
       setSlackState("done");
     } catch (e) {
@@ -108,7 +111,7 @@ export default function ShareModal({ imageDataUrl, defaultCaption, onClose }: Pr
 
         {slackState === "done" && (
           <p className="mt-2 text-xs text-slate-400">
-            Message sent to your Slack channel.
+            Message sent to your Slack channel · image downloaded.
           </p>
         )}
 
