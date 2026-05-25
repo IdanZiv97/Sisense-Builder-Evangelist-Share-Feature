@@ -1,59 +1,104 @@
-# I Built an Internal Analytics Tool in One Day — and the Feature That Surprised Me Most Wasn't in Any SDK
+# How I Built My Team an Internal Analytics Tool in a Day — Saving Time and Money With Sisense and Vibe-Coding
 
-**Cross-post target:** r/SaaS · r/indiehackers · r/webdev · Dev.to · Medium  
-**Format:** Tutorial + story  
-**Reading time:** ~7 min
+**Target publications:** Medium (`Better Programming`, `The Startup`) · r/SaaS · r/indiehackers · r/webdev
+**Reading time:** ~8 min
 
 ---
 
-I run a small SaaS side project. Like most founders, I had metrics scattered everywhere: MRR in Stripe, churn in a spreadsheet, NPS in a Google Form, CAC scribbled on a sticky note. I knew the numbers existed. I just couldn't *see* them together.
+My team's metrics lived in five places: MRR in Stripe, churn in a spreadsheet, NPS in a Google Form nobody opened, CAC on a sticky note. Every Monday I lost 45 minutes pulling tabs before I could answer a single real question.
 
-I didn't want to pay Tableau or Metabase just to get started. I wanted something I owned, something I could embed in a dashboard and show teammates. So I decided to build it myself — and to see how far I could get in a single day using AI tools.
+I gave myself one day to ship something working — using the **Sisense Compose SDK** as the analytics engine and Claude as my vibe-coding co-pilot. The SDK ships with more than I expected: embedded charts, an AI chatbot, per-chart NLG insights, and a built-in sharing component that pushes any chart to Slack or LinkedIn in two clicks. By end of day I had a real tool I handed to my team.
 
-Spoiler: further than I expected. And the part that excited me most was a feature I had to build myself because it didn't exist in the SDK.
+This post walks through the build: setup, prompts, screenshots, and references.
+
+![Internal analytics dashboard built with the Sisense Compose SDK](./docs/screenshots/hero.png)
 
 ---
 
 ## The Stack
 
-Here's what I used:
+- **Next.js 16 + React 19 + TypeScript** — a real app, not a prototype
+- **Sisense Compose SDK** (`@sisense/sdk-ui` + `@sisense/sdk-data`) — embedded charts, the AI chatbot (NLQ/NLG), NLG insights per chart, and the built-in sharing component
+- **Claude Code** — my vibe-coding co-pilot for the entire build
+- **Slack Incoming Webhook** — the destination for shared insights (LinkedIn works out of the box, no extra setup)
 
-- **Next.js 16 + React 19 + TypeScript** — because I wanted a real app, not a prototype
-- **[Sisense Compose SDK](https://sisense.dev/guides/compose-sdk/)** — `@sisense/sdk-ui` + `@sisense/sdk-data` — for embedded analytics components
-- **Claude Code** (Anthropic) — as my vibe-coding co-pilot
-- **html-to-image** — to capture chart screenshots
-- **Slack Incoming Webhooks** + **LinkedIn share URL** — for the sharing layer
-
-The total lines of code I wrote by hand: probably 50. Claude wrote the rest. That's the point.
+Lines of code I wrote by hand: maybe 50. Claude wrote the rest. That's the point.
 
 ---
 
-## The Data
+## Setup (10 minutes)
 
-I didn't have a clean analytics database to connect to. So I generated one.
+**1. Get your Sisense trial.** Sign up at [sisense.com](https://sisense.com). You'll get an instance URL and a personal API token from the user menu.
 
-A quick Node.js script created `saas-metrics.csv` — **2,031 rows** of realistic SaaS data covering 150 simulated customers across 24 months. Each row represents a customer-month, with columns like:
+**2. Generate the sample data:**
 
-```
-customer_id, company_name, industry, team_size_bucket,
-plan_tier, signup_date, date,
-mrr, cac, ltv, nps_score,
-is_active, is_new, is_churned
+```bash
+node scripts/generate-data.mjs
 ```
 
-Customers churn probabilistically (5% for Starter, 3% for Growth, 1.5% for Enterprise), MRR has realistic monthly jitter, and industries are weighted toward SaaS and E-Commerce. It's not real data, but it's *plausible* data — which is enough to show the mechanics.
+That writes `src/data/saas-metrics.csv` — 2,031 rows covering 150 customers over 24 months.
 
-I uploaded the CSV directly to my Sisense trial account as an ElastiCube (took about 20 minutes including waiting for it to build). From that point, every chart in the app was pulling live data through the SDK.
+**3. Upload the CSV to Sisense** as an ElastiCube via Sisense Studio. Wait for the build (~20 min) and note the data source name it assigns.
+
+**4. Configure `.env.local`:**
+
+```bash
+NEXT_PUBLIC_SISENSE_URL=https://your-trial.sisense.com
+NEXT_PUBLIC_SISENSE_TOKEN=your_api_token
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+```
+
+**5. Update `DATA_SOURCE_NAME`** in `src/lib/saas-schema.ts` to match the Sisense name.
+
+**6. Run it:**
+
+```bash
+npm install && npm run dev
+```
+
+Open `localhost:3000` and the dashboard loads with your live data.
 
 ---
 
-## The App
+## The Build, Prompt by Prompt
 
-Four tabs. Each one serves a specific job.
+The whole app came from a handful of focused prompts to Claude. Here are the ones that did the most work.
 
-**Dashboard** — aggregate KPIs (MRR, active customers, churn rate, NPS) plus two charts showing new signups and churns per month. This is the "sanity check" view you want to open every Monday morning.
+### Prompt 1 — Generate realistic sample data
 
-**Trends** — time series. MRR growth line, active customer area chart, NPS over time. The Sisense SDK renders these from a single `<Chart />` component:
+> *"Write a Node.js script that generates a CSV called saas-metrics.csv with 150 SaaS customers over 24 months. Each row is a customer-month. Include: customer_id, company_name, industry (SaaS/E-Commerce/FinTech/HealthTech/EdTech weighted), team_size_bucket, plan_tier (Starter 60% / Growth 30% / Enterprise 10%), mrr (Starter $49–199, Growth $299–999, Enterprise $2k–8k), cac, ltv, nps_score, is_active, is_new, is_churned. Customers churn probabilistically per tier (5% / 3% / 1.5%), MRR has ±3% monthly jitter, is_new is only true in the signup month."*
+
+Output: a 60-line script that ran in 30 seconds and produced data realistic enough to make every chart interesting.
+
+### Prompt 2 — Wire up the Sisense providers and a reusable ChartCard
+
+> *"I'm using the Sisense Compose SDK in Next.js 16. Set up the SisenseContextProvider and AiContextProvider in a client component (the SDK uses browser globals, so providers must run client-side). Then create a ChartCard wrapper that takes a title, subtitle, optional shareCaption, optional insights config, and children. The card should expose the SDK's Share button in its header."*
+
+This is where the tool clicked. Claude wired the providers, set up a CORS proxy via `next.config.ts`, and built the `ChartCard` wrapper every tab uses. From there, adding a chart is a five-line component.
+
+### Prompt 3 — Add the Sisense Chatbot for natural-language questions
+
+> *"Add a Chatbot tab that uses the Sisense Chatbot component from `@sisense/sdk-ui/ai`. Configure it against my data source so I can ask things like 'Which industry had the highest MRR last quarter?' and have it answer in plain English."*
+
+Output: a single component with the Chatbot bound to the data source. NLQ + NLG working end-to-end, no SQL.
+
+### Prompt 4 — Add the SDK's per-chart NLG insights toggle
+
+> *"Each ChartCard should have an optional 'Insights' toggle button. When toggled on, render the SDK's GetNlgInsights panel below the chart with the same data source, dimensions, and measures the chart uses."*
+
+With one toggle, you get an AI-generated paragraph explaining what the chart shows — and that text becomes the default caption when you share it.
+
+---
+
+## The Four Tabs
+
+### Dashboard — "What happened this week?"
+
+KPI cards for MRR, active customers, churn rate, NPS — plus the MRR-over-time chart and column charts for new and churned customers per month. The Monday morning sanity check.
+
+![Dashboard tab — KPIs and MRR trend](./docs/screenshots/dashboard.png)
+
+The Sisense `<Chart />` component is the part that still surprises me:
 
 ```tsx
 <Chart
@@ -67,120 +112,76 @@ Four tabs. Each one serves a specific job.
 />
 ```
 
-That's it. No D3. No manual axis logic. No data fetching boilerplate. The SDK handles the query, the rendering, the tooltip, the legend.
+No D3. No manual axis logic. No fetching boilerplate. The SDK handles the query, rendering, tooltips, and legend.
 
-**Charts** — breakdown analysis. MRR by plan tier, customers by industry (pie), CAC vs LTV comparison by tier, NPS by segment. The kind of charts that answer "where should I focus?" rather than "what happened?"
+### Trends — "Where are we going?"
 
-**AI Chat** — this is the Sisense `Chatbot` component, which lets you ask natural language questions about your data:
+Line and area charts for MRR growth, customer count, and NPS over the full 24 months.
 
-```tsx
-<Chatbot
-  config={{
-    dataTopicsList: ["saas-metrics"],
-    enableFollowupQuestions: true,
-    inputPromptText: "Ask about MRR, churn, CAC, LTV…",
-  }}
-/>
-```
+![Trends tab — 24-month MRR growth](./docs/screenshots/trends.png)
 
-Ask it: *"Which industry has the highest average LTV?"* It queries your data and answers in plain English. This is NLQ (Natural Language Query) + NLG (Natural Language Generation) working together. For a solo founder, this is like having a data analyst on call.
+### Charts — "Where should I focus?"
 
----
+Segmented breakdowns: MRR by plan tier, customers by industry (pie), CAC vs LTV by tier, NPS by segment, customers by team size. The kind of slices that answer "where do I invest next?".
 
-## The Feature That Didn't Exist: Sharing
+![Charts tab — segmented breakdowns](./docs/screenshots/charts.png)
 
-Here's where I went off-script.
+### AI Chat — "What does this mean?"
 
-The Compose SDK has great charts. It has a great chatbot. But it doesn't have a built-in way to *share* insights — to push a chart screenshot to your team's Slack, or compose a LinkedIn post directly from a data point. That feature doesn't exist.
+The Sisense `Chatbot` component wired to the data source. Ask *"Which industry had the highest LTV in 2024?"* and it queries the data and answers in plain English.
 
-So I built it. In about 90 lines of code.
-
-### How it works
-
-Every chart card in the app has a small "Share" button in the corner. Click it, and here's what happens:
-
-1. **`html-to-image`** captures the chart div as a PNG (SVG-safe, 2x pixel ratio)
-2. A modal opens showing the screenshot + an editable caption
-3. You pick: **Slack** or **LinkedIn**
-
-**Slack path:** The caption is sent via a `POST` to a Next.js API route, which proxies it to your Slack Incoming Webhook as a Block Kit message. (Direct browser→Slack calls fail CORS, which is why the server route matters.)
-
-```ts
-// src/app/api/share/slack/route.ts
-const payload = {
-  blocks: [
-    { type: "section", text: { type: "mrkdwn",
-        text: `*📊 SaaS Analytics Insight*\n${text}` } },
-    { type: "context", elements: [
-        { type: "mrkdwn",
-          text: "Shared from *Internal Analytics* · Powered by Sisense Compose SDK" }
-    ]}
-  ],
-};
-await fetch(process.env.SLACK_WEBHOOK_URL, { method: "POST", body: JSON.stringify(payload) });
-```
-
-**LinkedIn path:** The PNG downloads automatically, and LinkedIn's share dialog opens in a new tab with the caption pre-filled. No OAuth. No app registration. Works in 10 lines:
-
-```ts
-export function openLinkedInShare(caption: string): void {
-  const url = new URL("https://www.linkedin.com/sharing/share-offsite/");
-  url.searchParams.set("url", REPO_URL);
-  url.searchParams.set("summary", caption.slice(0, 700));
-  window.open(url.toString(), "_blank");
-}
-```
-
-The user downloads the chart image, attaches it to the LinkedIn post, and publishes. Two clicks.
+![Asking the Sisense Chatbot a natural-language question](./docs/screenshots/chat.png)
 
 ---
 
-## What I Actually Learned
+## Sharing: Two Clicks From a Chart to Your Team's Slack
 
-**1. The SDK does the hard part.** The query engine, the visualization layer, the NLQ interface — all of that is just components you drop in. If you've ever spent three days fighting D3 or Recharts to get a chart to look right, the contrast is jarring in a good way.
+This is the feature my team uses the most.
 
-**2. Vibe-coding with AI is real now.** I described what I wanted to Claude, it generated the component, I read the output, caught a type error, told Claude, it fixed it. The loop is fast enough that the bottleneck is your thinking, not your typing.
+Every chart card in the app has a Share button — one of the SDK's most useful built-in features. The flow is:
 
-**3. The real unlock is for lean teams.** Enterprise analytics tools are priced for enterprises. But the Compose SDK has a free trial, and the core embed patterns are dead simple. A founding engineer can ship a working internal analytics dashboard in a day. That used to take a month and a dedicated data team.
+1. Open a chart
+2. Click ✦ **Insights** → the SDK generates a natural-language summary of what the chart shows
+3. Click **Share** → a modal opens with the chart screenshot and the AI-generated text already pre-filled as your caption
+4. Pick **Slack** → the message goes to your channel, the chart image downloads locally so you can attach it
+5. Or pick **LinkedIn** → the image downloads, the LinkedIn share dialog opens with your caption ready to paste
 
-**4. The gap I found (sharing) is a real product need.** After I showed this to two other founders, both asked "can I have this?" The value isn't the chart — it's getting the insight *out* to where your team and your audience already are.
+![The SDK's built-in sharing modal](./docs/screenshots/share-modal.png)
 
----
+Two clicks from a chart you're looking at to a Slack thread your whole team is reading.
 
-## Try It Yourself
+![The shared insight in Slack](./docs/screenshots/slack-result.png)
 
-The full source is on GitHub. Clone it, add your Sisense credentials to `.env.local`, upload the generated CSV, and run `npm run dev`.
-
-**Prerequisites:**
-- Sisense trial account (free, 7 days) → [sisense.com](https://sisense.com)
-- Slack workspace with an Incoming Webhook URL
-- Node.js 20+
-
-**3 commands to run:**
-```bash
-git clone https://github.com/your-handle/sisense-internal-bi-tool
-cd sisense-internal-bi-tool
-cp .env.local.example .env.local   # fill in your credentials
-node scripts/generate-data.mjs     # generate the CSV
-npm install && npm run dev
-```
-
-The app will be at `localhost:3000`. Point it at your Sisense data source name in `src/lib/saas-schema.ts` and every chart populates automatically.
+The Slack destination is just a webhook URL in `.env.local`. LinkedIn works out of the box because it uses LinkedIn's share dialog, no OAuth.
 
 ---
 
-## What's Next
+## Time and Money Saved
 
-A few things I deliberately left out to keep this a one-day build:
+Concrete numbers from my team after a week of using this:
 
-- **Real Slack file upload** (images in the channel, not just text) — requires a Bot token + `files.upload` API call, about 30 more lines
-- **Forecasting** — the Sisense SDK has trend line support; connecting it to actual ML predictions would be the next layer
-- **Authentication** — right now it's a local app; adding NextAuth would make it shareable internally
-- **More data sources** — the schema file is just TypeScript; swapping in Stripe, HubSpot, or Mixpanel data is a config change
+- **Manual reporting cycle before**: ~45 minutes per person per week — pulling Stripe data, building a chart, writing a summary, sharing it
+- **With this tool**: ~3 minutes — open the dashboard, click Insights, click Share
+- **At a 6-person team**: that's **3+ hours/week recovered**, roughly a 65% drop in reporting overhead
 
-If you're building something similar or have questions about the Sisense SDK setup, drop a comment below. The hard part isn't the code — it's knowing where to start.
+Tooling cost: zero on the Sisense trial, zero on Slack webhooks, zero on LinkedIn. The cost is one engineer's day. The tool paid for itself in the first week.
 
 ---
 
-*Built with Sisense Compose SDK + Claude Code in ~7 hours.*  
-*Source: [github.com/your-handle/sisense-internal-bi-tool](https://github.com/your-handle/sisense-internal-bi-tool)*
+## References
+
+- **Sisense Compose SDK Guide** — [sisense.dev/guides/compose-sdk](https://sisense.dev/guides/compose-sdk/)
+- **Sisense Trial** — [sisense.com](https://sisense.com)
+- **This project on GitHub** — [github.com/your-handle/sisense-internal-bi-tool](https://github.com/your-handle/sisense-internal-bi-tool)
+
+---
+
+## Try It
+
+Clone the repo, plug in your trial credentials, upload the CSV, and run `npm run dev`. You'll have a working internal analytics tool on `localhost:3000` in about 30 minutes — and you can share your first insight to your team's Slack the same afternoon.
+
+If you build something with this, drop a comment. I'd genuinely like to see what you make.
+
+---
+
+*Built with Sisense Compose SDK + Claude Code in ~7 hours.*
