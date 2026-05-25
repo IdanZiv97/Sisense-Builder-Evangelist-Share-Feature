@@ -11,7 +11,7 @@ I gave myself one day to ship something working — using the **Sisense Compose 
 
 This post walks through the build: setup, prompts, screenshots, and references.
 
-![Internal analytics dashboard built with the Sisense Compose SDK](https://raw.githubusercontent.com/IdanZiv97/Sisense-Builder-Evangelist-Share-Feature/main/docs/screenshots/hero.png)
+![Internal analytics dashboard built with the Sisense Compose SDK](./docs/screenshots/hero.png)
 
 ---
 
@@ -96,7 +96,7 @@ With one toggle, you get an AI-generated paragraph explaining what the chart sho
 
 KPI cards for MRR, active customers, churn rate, NPS — plus the MRR-over-time chart and column charts for new and churned customers per month. The Monday morning sanity check.
 
-![Dashboard tab — KPIs and MRR trend](https://raw.githubusercontent.com/IdanZiv97/Sisense-Builder-Evangelist-Share-Feature/main/docs/screenshots/dashboard.png)
+![Dashboard tab — KPIs and MRR trend](./docs/screenshots/dashboard.png)
 
 The Sisense `<Chart />` component is the part that still surprises me:
 
@@ -118,19 +118,19 @@ No D3. No manual axis logic. No fetching boilerplate. The SDK handles the query,
 
 Line and area charts for MRR growth, customer count, and NPS over the full 24 months.
 
-![Trends tab — 24-month MRR growth](https://raw.githubusercontent.com/IdanZiv97/Sisense-Builder-Evangelist-Share-Feature/main/docs/screenshots/trends.png)
+![Trends tab — 24-month MRR growth](./docs/screenshots/trends.png)
 
 ### Charts — "Where should I focus?"
 
 Segmented breakdowns: MRR by plan tier, customers by industry (pie), CAC vs LTV by tier, NPS by segment, customers by team size. The kind of slices that answer "where do I invest next?".
 
-![Charts tab — segmented breakdowns](https://raw.githubusercontent.com/IdanZiv97/Sisense-Builder-Evangelist-Share-Feature/main/docs/screenshots/charts.png)
+![Charts tab — segmented breakdowns](./docs/screenshots/charts.png)
 
 ### AI Chat — "What does this mean?"
 
 The Sisense `Chatbot` component wired to the data source. Ask *"Which industry had the highest LTV in 2024?"* and it queries the data and answers in plain English.
 
-![Asking the Sisense Chatbot a natural-language question](https://raw.githubusercontent.com/IdanZiv97/Sisense-Builder-Evangelist-Share-Feature/main/docs/screenshots/chat.png)
+![Asking the Sisense Chatbot a natural-language question](./docs/screenshots/chat.png)
 
 ---
 
@@ -146,11 +146,11 @@ Every chart card in the app has a Share button — one of the SDK's most useful 
 4. Pick **Slack** → the message goes to your channel, the chart image downloads locally so you can attach it
 5. Or pick **LinkedIn** → the image downloads, the LinkedIn share dialog opens with your caption ready to paste
 
-![The SDK's built-in sharing modal](https://raw.githubusercontent.com/IdanZiv97/Sisense-Builder-Evangelist-Share-Feature/main/docs/screenshots/share-modal.png)
+![The SDK's built-in sharing modal](./docs/screenshots/share-modal.png)
 
 Two clicks from a chart you're looking at to a Slack thread your whole team is reading.
 
-![The shared insight in Slack](https://raw.githubusercontent.com/IdanZiv97/Sisense-Builder-Evangelist-Share-Feature/main/docs/screenshots/slack-result.png)
+![The shared insight in Slack](./docs/screenshots/slack-result.png)
 
 The Slack destination is just a webhook URL in `.env.local`. LinkedIn works out of the box because it uses LinkedIn's share dialog, no OAuth.
 
