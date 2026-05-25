@@ -1,89 +1,50 @@
-# SaaS Insights — Internal Analytics Tool
+# Sisense Builder Evangelist — Share Feature
 
-An internal SaaS analytics dashboard built with **Sisense Compose SDK + Claude Code** in one day.
+An internal SaaS analytics tool built with the **Sisense Compose SDK + Claude Code** in one day, plus a **chart-to-Slack/LinkedIn sharing layer** designed as the centerpiece of a bottom-up PLG motion.
 
-Showcases embedded charts, NLQ/NLG AI chat, and a **chart-to-Slack/LinkedIn sharing layer** that isn't in the SDK by default.
+This repo is a Builder Evangelist assignment submission. It contains three deliverables:
 
-## Features
+| File | What it is |
+|------|------------|
+| [`SETUP.md`](SETUP.md) | Technical setup — clone the repo, configure your Sisense trial, run the app locally. Start here if you want to see the tool working. |
+| [`BLOG_POST.md`](BLOG_POST.md) | The content asset — a Medium-ready tutorial walking a developer through the build, prompt-by-prompt. This is what gets shared on Reddit, Medium, and LinkedIn. |
+| [`STRATEGY.md`](STRATEGY.md) | The thinking behind the build — the *why*: target audience, UVP, the role of the sharing feature as a PLG engine, and where the feature grows from here. |
+
+---
+
+## The 30-second summary
+
+**What it is.** A working SaaS analytics dashboard (KPIs, trends, segmented charts, an AI chatbot) with a built-in sharing layer that pushes any chart — with an AI-generated caption — to Slack or LinkedIn in two clicks.
+
+**Why it matters.** No competing embedded-analytics SDK has native sharing. Every shared chart is a branded Sisense impression. That makes sharing the engine of the PLG flywheel: developers discover the tool → build with it → share insights → other people in their company/network see Sisense-powered charts → next user enters the funnel.
+
+**Who it's for.** SaaS developers and indie hackers as the primary audience (cheap to acquire now, anchor users as they grow into enterprise buyers), plus PMs and team leads who need a working prototype to justify a Sisense license to upper management.
+
+---
+
+## App at a glance
 
 | Tab | What it does |
 |-----|-------------|
-| Dashboard | KPI cards + MRR overview + new/churn charts |
-| Trends | Time-series analysis: MRR growth, customer count, NPS |
-| Charts | Breakdowns by plan tier, industry, team size, CAC vs LTV |
-| AI Chat | Sisense Chatbot — ask natural language questions about your data |
+| **Dashboard** | KPI cards + MRR overview + new/churn charts |
+| **Trends** | Time-series: MRR growth, customer count, NPS |
+| **Charts** | Breakdowns by plan tier, industry, team size, CAC vs LTV |
+| **AI Chat** | Sisense Chatbot — natural-language Q&A over the data |
 
-**Sharing:** Every chart has a Share button. Capture → preview → push to Slack or LinkedIn in two clicks.
+Every chart card has an **AI Insights** toggle (NLG explanation of what the chart shows) and a **Share** button (Slack + LinkedIn out of the box).
 
-## Quick Start
+---
 
-### 1. Prerequisites
-
-- Node.js 20+
-- [Sisense trial account](https://sisense.com) (free, 7 days)
-- Slack workspace with an [Incoming Webhook URL](https://api.slack.com/messaging/webhooks)
-
-### 2. Clone & install
+## Getting started
 
 ```bash
-git clone https://github.com/your-handle/sisense-internal-bi-tool
-cd sisense-internal-bi-tool
+git clone git@github.com:IdanZiv97/Sisense-Builder-Evangelist-Share-Feature.git
+cd Sisense-Builder-Evangelist-Share-Feature
 npm install
 ```
 
-### 3. Generate the sample data
+Then follow [`SETUP.md`](SETUP.md) for the Sisense + Slack configuration steps.
 
-```bash
-node scripts/generate-data.mjs
-# → src/data/saas-metrics.csv (2,031 rows, 150 customers × 24 months)
-```
+---
 
-Upload `src/data/saas-metrics.csv` to your Sisense instance as an ElastiCube.
-
-### 4. Configure
-
-Edit `.env.local`:
-
-```bash
-NEXT_PUBLIC_SISENSE_URL=https://YOUR-TRIAL.sisense.com
-NEXT_PUBLIC_SISENSE_TOKEN=YOUR_API_TOKEN
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
-```
-
-Update the data source name in [`src/lib/saas-schema.ts`](src/lib/saas-schema.ts) — the `DATA_SOURCE_NAME` constant must exactly match what Sisense assigned after the CSV upload.
-
-### 5. Run
-
-```bash
-npm run dev
-# → http://localhost:3000
-```
-
-## How Sharing Works
-
-```
-Click Share
-    │
-    ▼
-html-to-image captures chart div as PNG
-    │
-    ▼
-ShareModal: preview + editable caption
-    │
-    ├── Slack  → POST /api/share/slack → Slack Incoming Webhook (Block Kit message)
-    └── LinkedIn → download PNG + open LinkedIn share URL with pre-filled caption
-```
-
-The Next.js API route at `/api/share/slack` proxies the Slack call server-side to avoid browser CORS restrictions.
-
-## Blog Post
-
-See [`BLOG_POST.md`](BLOG_POST.md) for the full Medium/Dev.to article about what was built and how.
-
-## Tech
-
-- Next.js 16 + React 19 + TypeScript
-- [@sisense/sdk-ui](https://sisense.dev/guides/compose-sdk/) + @sisense/sdk-data v2.27
-- Tailwind CSS v4
-- html-to-image
-- lucide-react
+*Idan Ziv — Builder Evangelist candidate*
