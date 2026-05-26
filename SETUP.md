@@ -12,27 +12,17 @@ Everything you need to clone this repo, plug in your Sisense trial, and have the
 
 ---
 
-## 1. Clone & install
-
-```bash
-git clone git@github.com:IdanZiv97/Sisense-Builder-Evangelist-Share-Feature.git
-cd Sisense-Builder-Evangelist-Share-Feature
-npm install
-```
-
----
-
-## 2. Generate the sample data
+## 1. Generate the sample data
 
 ```bash
 node scripts/generate-data.mjs
 ```
 
-This writes `src/data/saas-metrics.csv` — 2,031 rows covering 150 customers across 24 months. The schema includes MRR, churn, NPS, CAC, LTV, plan tier, industry, and team size.
+This writes `src/data/saas-metrics.csv` — 2,000+ rows covering 100+ customers across 24 months. The schema includes MRR, churn, NPS, CAC, LTV, plan tier, industry, and team size.
 
 ---
 
-## 3. Upload the CSV to Sisense
+## 2. Upload the CSV to Sisense
 
 1. Open your Sisense instance.
 2. Create a new ElastiCube from `src/data/saas-metrics.csv`.
@@ -41,7 +31,7 @@ This writes `src/data/saas-metrics.csv` — 2,031 rows covering 150 customers ac
 
 ---
 
-## 4. Configure environment variables
+## 3. Configure environment variables
 
 Create `.env.local` in the repo root:
 
@@ -59,13 +49,13 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 
 ---
 
-## 5. Wire the data source name
+## 4. Wire the data source name
 
 Open [`src/lib/saas-schema.ts`](src/lib/saas-schema.ts) and update `DATA_SOURCE_NAME` to match the name Sisense gave the cube in step 3 — exactly, case-sensitive.
 
 ---
 
-## 6. Run
+## 5. Run
 
 ```bash
 npm run dev
