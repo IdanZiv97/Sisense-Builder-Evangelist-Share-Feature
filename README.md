@@ -47,4 +47,18 @@ Then follow [`SETUP.md`](SETUP.md) for the Sisense + Slack configuration steps.
 
 ---
 
+## A note on scope
+
+This was a one-day build to showcase a new sharing feature for the Sisense Compose SDK and the strategy behind it (see [`STRATEGY.md`](STRATEGY.md) and [`BLOG_POST.md`](BLOG_POST.md)). Engineering rigor was deliberately scoped to what the demo and the story require.
+
+**No test suite ships with v1** — every hour spent on testing was an hour not spent on the strategy and content asset, which are the assignment's real deliverables. A production version would ship:
+
+- **Unit tests (TDD-style)** for pure logic in `src/lib/format.ts`, `slack.ts`, `linkedin.ts` — currency-abbreviation boundaries, division-by-zero in deltas, POST body shapes, URL composition, `NaN` handling.
+- **Behavior tests (BDD-style)** with React Testing Library: *given a chart, when I click Share + Slack, the API is called exactly once and the image downloads*; KPI loading skeletons; the AI Insights toggle pre-filling the share caption.
+- **Integration tests** against `/api/share/slack` with `fetch` mocked via MSW.
+
+External dependencies (`useExecuteQuery`, `fetch`, `navigator.clipboard`, `html-to-image`) would be mocked; pure functions and route handlers would not. Framework: **Vitest + React Testing Library**, colocated with source.
+
+---
+
 *Idan Ziv — Builder Evangelist candidate*
