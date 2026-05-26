@@ -46,6 +46,7 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 | `NEXT_PUBLIC_SISENSE_URL` | Your Sisense trial URL |
 | `NEXT_PUBLIC_SISENSE_TOKEN` | Sisense → user menu → API token |
 | `SLACK_WEBHOOK_URL` | Slack → Incoming Webhooks → create one for the channel you want to post to |
+| `NEXT_PUBLIC_SHARE_URL` *(optional)* | The URL LinkedIn shares attach as the post's link card. Defaults to this GitHub repo. Point at your Medium post / portfolio when published. |
 
 ---
 
@@ -81,6 +82,8 @@ ShareModal: preview + editable caption (pre-filled with the NLG insight when ava
 ```
 
 The Next.js API route at `/api/share/slack` proxies the Slack call server-side to avoid browser CORS restrictions on the webhook endpoint.
+
+**A note on the LinkedIn flow.** Sharing to LinkedIn intentionally avoids OAuth so the app works immediately with zero setup. When you click *Share to LinkedIn*, the chart image downloads, the caption is copied to your clipboard, and LinkedIn's share dialog opens — you drag the PNG in and paste. The dialog requires a destination URL (LinkedIn's `share-offsite` endpoint demands `?url=`); we use `NEXT_PUBLIC_SHARE_URL` for that link card. Moving to LinkedIn's official Share API (one-click direct posting) is on the roadmap — see [`STRATEGY.md`](STRATEGY.md) for the broader sharing-layer evolution.
 
 ---
 

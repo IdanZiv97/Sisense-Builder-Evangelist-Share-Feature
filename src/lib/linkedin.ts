@@ -1,4 +1,6 @@
-const REPO_URL = "https://github.com/your-handle/sisense-internal-bi-tool";
+const REPO_URL =
+  process.env.NEXT_PUBLIC_SHARE_URL ??
+  "https://github.com/IdanZiv97/Sisense-Builder-Evangelist-Share-Feature";
 
 /**
  * Copy caption to clipboard then open LinkedIn's share dialog.
