@@ -88,6 +88,12 @@ Output: a single component with the Chatbot bound to the data source. NLQ + NLG 
 
 With one toggle, you get an AI-generated paragraph explaining what the chart shows — and that text becomes the default caption when you share it.
 
+### Prompt 5 — Wire up Slack and LinkedIn as Share destinations
+
+> *"The SDK's Share button is already on every ChartCard. Hook up two destinations: (1) Slack — POST the caption to a tiny Next.js API route at `/api/share/slack` that proxies my `SLACK_WEBHOOK_URL` server-side so the browser doesn't hit CORS; (2) LinkedIn — open the share-offsite dialog and copy the AI caption to the clipboard so I can paste it directly into the post. In both cases, download the chart PNG locally so I can attach it. No OAuth, no app registration — should work the first time I run `npm run dev`."*
+
+Output: a 20-line Slack proxy route and a tiny clipboard helper. Both destinations live behind the same Share modal the SDK ships with, so the user-facing flow stays "click Share, pick destination, done."
+
 ---
 
 ## The Four Tabs
