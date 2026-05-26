@@ -2,7 +2,7 @@
 
 An internal SaaS analytics tool built with the **Sisense Compose SDK + Claude Code** in one day, plus a **chart-to-Slack/LinkedIn sharing layer** designed as the centerpiece of a bottom-up PLG motion.
 
-This repo is a Builder Evangelist assignment submission. It contains three deliverables:
+This repo is my submission for the Builder Evangelist position. It contains three deliverables:
 
 | File | What it is |
 |------|------------|
@@ -14,9 +14,9 @@ This repo is a Builder Evangelist assignment submission. It contains three deliv
 
 ## The 30-second summary
 
-**What it is.** A working SaaS analytics dashboard (KPIs, trends, segmented charts, an AI chatbot) with a built-in sharing layer that pushes any chart — with an AI-generated caption — to Slack or LinkedIn in two clicks.
+**What it is.** A working-prototype SaaS analytics dashboard (KPIs, trends, segmented charts, an AI chatbot) with a built-in sharing layer that pushes any chart — with an AI-generated caption — to Slack or LinkedIn in two clicks.
 
-**Why it matters.** No competing embedded-analytics SDK has native sharing. Every shared chart is a branded Sisense impression. That makes sharing the engine of the PLG flywheel: developers discover the tool → build with it → share insights → other people in their company/network see Sisense-powered charts → next user enters the funnel.
+**Why it matters.** Sharing turns every chart from an endpoint into a distribution event. Insights move out of the dashboard and into Slack channels and LinkedIn feeds, and every shared chart is a branded Sisense impression. That makes sharing the engine of the PLG flywheel: developers discover the tool → build with it → share insights → other people in their company/network see Sisense-powered charts → next user enters the funnel.
 
 **Who it's for.** SaaS developers and indie hackers as the primary audience (cheap to acquire now, anchor users as they grow into enterprise buyers), plus PMs and team leads who need a working prototype to justify a Sisense license to upper management.
 
