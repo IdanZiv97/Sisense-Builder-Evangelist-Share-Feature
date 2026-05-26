@@ -98,6 +98,8 @@ KPI cards for MRR, active customers, churn rate, NPS — plus the MRR-over-time 
 
 ![Dashboard tab — KPIs and MRR trend](./docs/screenshots/dashboard.png)
 
+The KPI numbers are live too — they come from a single `useExecuteQuery` call against the same `DataSource` the charts use, grouped by month. One round-trip gives me current MRR + month-over-month delta + active customers + churn rate + NPS, all derived in a tiny `useMemo` block. No second data source, no hardcoded values.
+
 The Sisense `<Chart />` component is the part that still surprises me:
 
 ```tsx
